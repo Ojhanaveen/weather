@@ -4,42 +4,42 @@ export default function WeatherApp() {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const fetchWeather = async () => {
-  if (!city) return;
+  const fetchWeather = async () => {
+    if (!city.trim()) return; // Prevent empty searches
 
-  setLoading(true);
-  setWeather(null);
+    setLoading(true);
+    setWeather(null);
+    setError(null);
 
-  try {
-    const response = await fetch(
-      `https://api.weatherapi.com/v1/current.json?key=ba116ebba99d4d51a2983132252509&q=${city}`
-    );
+    try {
+      const response = await fetch(
+        `https://api.weatherapi.com/v1/current.json?key=ba116ebba99d4d51a2983132252509&q=${city}`
+      );
 
-    if (!response.ok) {
-      throw new Error("Failed request");
+      if (!response.ok) {
+        throw new Error("Failed request");
+      }
+
+      const data = await response.json();
+
+      if (!data.location) {
+        throw new Error("Invalid city");
+      }
+
+      setWeather({
+        temp: data.current.temp_c,
+        humidity: data.current.humidity,
+        condition: data.current.condition.text,
+        wind: data.current.wind_kph,
+      });
+    } catch (err) {
+      setError(err.message || "Failed to fetch weather data");
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    // If API doesn't return location (invalid city)
-    if (!data.location) {
-      throw new Error("Invalid city");
-    }
-
-    setWeather({
-      temp: data.current.temp_c,
-      humidity: data.current.humidity,
-      condition: data.current.condition.text,
-      wind: data.current.wind_kph,
-    });
-  } catch (error) {
-    alert("Failed to fetch weather data");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
@@ -52,18 +52,26 @@ const fetchWeather = async () => {
           placeholder="Enter city"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && fetchWeather()}
           style={{ padding: "8px", marginRight: "10px" }}
         />
-        <button onClick={fetchWeather} style={{ padding: "8px 16px" }}>
-          Search
+        <button
+          onClick={fetchWeather}
+          style={{ padding: "8px 16px" }}
+          disabled={loading}
+        >
+          {loading ? "Loading…" : "Search"}
         </button>
       </div>
 
       {/* Loading Message */}
       {loading && <p>Loading data…</p>}
 
+      {/* Error Message */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       {/* Weather Data */}
-      {weather && (
+      {weather && !loading && (
         <div className="weather-cards" style={{ marginTop: "20px" }}>
           <div className="weather-card" style={cardStyle}>
             <h4>Temperature</h4>
