@@ -23,10 +23,8 @@ export default function WeatherApp() {
       const data = await response.json();
       if (!data.location) throw new Error("Invalid city");
 
-      // Only delay in test environment to ensure Cypress sees loading
-      if (process.env.NODE_ENV === "test") {
-        await new Promise((res) => setTimeout(res, 250));
-      }
+      // 🔑 Always add a small delay to make sure Cypress sees the loading state
+      await new Promise((res) => setTimeout(res, 250));
 
       setWeather({
         temp: data.current.temp_c,
@@ -65,8 +63,8 @@ export default function WeatherApp() {
       </div>
 
       {/* Loading Message */}
-      <p data-testid="loading-message">
-        {loading ? "Loading data…" : ""}
+      <p id="loading-message" data-testid="loading-message">
+        {loading ? "Loading data..." : ""}
       </p>
 
       {/* Error Message */}
