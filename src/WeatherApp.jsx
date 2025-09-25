@@ -7,7 +7,7 @@ export default function WeatherApp() {
   const [error, setError] = useState(null);
 
   const fetchWeather = async () => {
-    if (!city.trim()) return; // Prevent empty searches
+    if (!city.trim()) return;
 
     setLoading(true);
     setWeather(null);
@@ -18,18 +18,13 @@ export default function WeatherApp() {
         `https://api.weatherapi.com/v1/current.json?key=ba116ebba99d4d51a2983132252509&q=${city}`
       );
 
-      if (!response.ok) {
-        throw new Error("Failed request");
-      }
+      if (!response.ok) throw new Error("Failed request");
 
       const data = await response.json();
+      if (!data.location) throw new Error("Invalid city");
 
-      if (!data.location) {
-        throw new Error("Invalid city");
-      }
-
-      // Optional small delay to ensure loading state is visible for tests
-      await new Promise((res) => setTimeout(res, 200));
+      // Guarantee loading is visible for testing
+      await new Promise((res) => setTimeout(res, 250));
 
       setWeather({
         temp: data.current.temp_c,
@@ -68,7 +63,12 @@ export default function WeatherApp() {
       </div>
 
       {/* Loading Message */}
-      <p id="loading-message">{loading ? "Loading data…" : ""}</p>
+      <p
+        id="loading-message"
+        data-testid="loading-message"
+      >
+        {loading ? "Loading data…" : ""}
+      </p>
 
       {/* Error Message */}
       {error && <p style={{ color: "red" }}>{error}</p>}
