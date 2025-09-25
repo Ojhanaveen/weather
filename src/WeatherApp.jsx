@@ -4,14 +4,12 @@ export default function WeatherApp() {
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const fetchWeather = async () => {
     if (!city.trim()) return;
 
     setLoading(true);
     setWeather(null);
-    setError(null);
 
     try {
       const response = await fetch(
@@ -23,7 +21,7 @@ export default function WeatherApp() {
       const data = await response.json();
       if (!data.location) throw new Error("Invalid city");
 
-      // 🔑 Always add a small delay to make sure Cypress sees the loading state
+      // Small delay so Cypress can detect loading state
       await new Promise((res) => setTimeout(res, 250));
 
       setWeather({
@@ -33,7 +31,8 @@ export default function WeatherApp() {
         wind: data.current.wind_kph,
       });
     } catch (err) {
-      setError(err.message || "Failed to fetch weather data");
+      // 🔑 Requirement: Show alert instead of inline error
+      alert("Failed to fetch weather data");
     } finally {
       setLoading(false);
     }
@@ -64,11 +63,8 @@ export default function WeatherApp() {
 
       {/* Loading Message */}
       <p id="loading-message" data-testid="loading-message">
-        {loading ? "Loading data..." : ""}
+        {loading ? "Loading data…" : ""}
       </p>
-
-      {/* Error Message */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Weather Data */}
       {weather && !loading && (
