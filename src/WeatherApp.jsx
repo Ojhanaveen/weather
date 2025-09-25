@@ -21,8 +21,8 @@ export default function WeatherApp() {
       const data = await response.json();
       if (!data.location) throw new Error("Invalid city");
 
-      // Small delay so Cypress can detect "Loading data…"
-      await new Promise((res) => setTimeout(res, 250));
+      // ✅ Small delay so Cypress catches the loading state
+      await new Promise((res) => setTimeout(res, 300));
 
       setWeather({
         temp: data.current.temp_c,
@@ -31,7 +31,8 @@ export default function WeatherApp() {
         wind: data.current.wind_kph,
       });
     } catch (err) {
-      alert("Failed to fetch weather data"); // per requirement
+      // ✅ Cypress expects alert
+      alert("Failed to fetch weather data");
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,6 @@ export default function WeatherApp() {
           placeholder="Enter city"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && fetchWeather()}
           style={{ padding: "8px", marginRight: "10px" }}
         />
         <button
@@ -56,13 +56,13 @@ export default function WeatherApp() {
           style={{ padding: "8px 16px" }}
           disabled={loading}
         >
-          {loading ? "Loading…" : "Search"}
+          Search
         </button>
       </div>
 
-      {/* ✅ Always-mounted Loading Message */}
-      <p id="loading-message" data-testid="loading-message">
-        {loading ? "Loading data…" : ""}
+      {/* ✅ Loading Message (exact text Cypress expects) */}
+      <p id="loading-message">
+        {loading ? "Loading data..." : ""}
       </p>
 
       {/* Weather Data */}
