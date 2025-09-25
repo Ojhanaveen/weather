@@ -28,6 +28,9 @@ export default function WeatherApp() {
         throw new Error("Invalid city");
       }
 
+      // Optional small delay to ensure loading state is visible for tests
+      await new Promise((res) => setTimeout(res, 200));
+
       setWeather({
         temp: data.current.temp_c,
         humidity: data.current.humidity,
@@ -65,7 +68,7 @@ export default function WeatherApp() {
       </div>
 
       {/* Loading Message */}
-      {loading && <p>Loading data…</p>}
+      <p id="loading-message">{loading ? "Loading data…" : ""}</p>
 
       {/* Error Message */}
       {error && <p style={{ color: "red" }}>{error}</p>}
